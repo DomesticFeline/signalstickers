@@ -141,6 +141,9 @@ const linkifyHrefDecorator = (decoratedHref: string, decoratedText: string, key:
 
 
 const StickerPackDetailComponent: React.FunctionComponent = () => {
+  const {setSearchQuery, searcher} = useContext(StickersContext);
+  const history = useHistory();
+
   // Extract :packId from the URL.
   const {packId} = useParams<UrlParams>();
 
@@ -154,10 +157,6 @@ const StickerPackDetailComponent: React.FunctionComponent = () => {
   // decrypt a sticker pack. This will be used to determine what error message
   // to show the user.
   const [stickerPackError, setStickerPackError] = useState('');
-
-  // Current search query, will be used if the user clicks on author.
-  const {setSearchQuery} = useContext(StickersContext);
-  const history = useHistory();
 
 
   /**
@@ -186,8 +185,13 @@ const StickerPackDetailComponent: React.FunctionComponent = () => {
   const onAuthorClick = (event: React.SyntheticEvent) => {
     event.preventDefault();
 
-    if (event.currentTarget.textContent) {
-      setSearchQuery(event.currentTarget.textContent);
+    if (searcher && event.currentTarget.textContent) {
+      setSearchQuery(searcher.buildQueryString({
+        attributeQueries: [{
+          author: event.currentTarget.textContent
+        }]
+      }));
+
       history.push('/');
     }
   };
